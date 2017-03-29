@@ -9,6 +9,7 @@ import ComparisonChart from './components/ComparisonChart.jsx'
 import Analyses from './components/Analyses.jsx'
 import Public from './components/Public.jsx'
 import UserAnalyses from './components/UserAnalyses.jsx'
+import Tradeoff from './components/Tradeoff.jsx'
 import TwitterSearch from './components/TwitterSearch.jsx'
 import CustomForm from './components/CustomForm.jsx'
 import * as s from './serverCalls.js'
@@ -93,6 +94,7 @@ class App extends React.Component {
                   </li>
                   <li><Link to="/User">saved analyses</Link></li>
                   <li><Link to="/Public">browse analyses</Link></li>
+                  <li><Link to="/Tradeoff">search personalities</Link></li>
                 </ul>
                 <ul className="nav navbar-nav navbar-right">
                   {!this.state.loggedIn && <li><Link to="/LoginForm">log in</Link></li> }
@@ -120,6 +122,7 @@ class App extends React.Component {
             <Route path="/CustomForm" component={() => <CustomForm toggleSpinner={this.toggleSpinner}/>}/>
             <Route path="/Public" component={() => <Public toggleSpinner={this.toggleSpinner} />} />          
             <Route path="/User" component={UserAnalyses}/>
+            <Route path="/Tradeoff" component={Tradeoff}/>
             <Route path="/analyses/:id" render={(nativeProps) => <Analyses nativeProps={nativeProps} toggleSpinner={this.toggleSpinner} /> } />
           </div>
         </div>
