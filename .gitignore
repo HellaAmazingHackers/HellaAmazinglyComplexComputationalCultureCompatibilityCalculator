@@ -26,10 +26,6 @@ react-client/dist/bundle.js
 node_modules/
 bower_components/
 
-# API Keys
-server/social/API_KEYS.js
-server/API_KEYS.js
-
 # Secrets
 server/secrets.js
 
