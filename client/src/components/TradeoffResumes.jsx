@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import * as s from '../serverCalls.js';
 
 
-export default class Tradeoff extends React.Component {
+export default class TradeoffResumes extends React.Component {
   constructor(props) {
     super(props)
     this.state = { 
