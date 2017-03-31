@@ -1,4 +1,4 @@
-import passport from 'passport';
+var passport = require('passport');
 
 exports.isLoggedIn = (req, res) => {
   if (req.user) {

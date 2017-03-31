@@ -198,12 +198,10 @@ var createProblemObject = function() {
 // TODO (Eddie): should differentiate based on twitter vs. resume analyses
 // For now: only twitter
 var writeProblemJSON = function() {
-  console.log('in writeProblemJSON');
-  
+
   return new Promise((resolve, reject) => {
     createProblemObject()
     .then(function(problemObj) {
-      console.log('before writefile');
       var filename = './client/dist/twitterProblem.json';
       fs.writeFile(filename, JSON.stringify(problemObj), (err) => {
         if (err) {

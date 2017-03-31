@@ -1,6 +1,6 @@
-import passport from 'passport';
-import Auth0Strategy from 'passport-auth0';
-import dbHelpers from '../../database/helpers/request_helpers';
+var passport = require('passport');
+var Auth0Strategy = require('passport-auth0');
+var dbHelpers = require('../../database/helpers/request_helpers');
 
 const formatUserData = {
   auth0: dbHelpers.auth0UserData,
