@@ -58,6 +58,7 @@ app.get('/twitterProfile/*', tw.testAnalysis);
 /****************/
 
 app.post('/analysis', watsonHelpers.analyzeProfile);
+app.get('/problem', tradeoffHelpers.getProblemJSON);
 
 /****************/
 /**** Auth0 ****/

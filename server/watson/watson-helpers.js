@@ -9,6 +9,7 @@ var analysisId;
 
 var analyzeProfile = function(req, res) {
   var analyze = function(text) {
+    console.log('in analyze');
     var params = {
       content_items: [{ content: text }],
       // consumption_preferences: true,
@@ -31,9 +32,6 @@ var analyzeProfile = function(req, res) {
           .then(function(analysisId) {
             
             res.redirect('/analyses/' + analysisId);
-            // Once all traits are saved into the db,
-            // Recreate the twitterProblem object and re-write twitterProblem.json
-            
             // This set timeout prevents writeProblemJSON from messing up the response object.
             // Without the setTimeout, we get ERR_CONTENT_LENGTH_MISMATCH
             setTimeout(function() {
