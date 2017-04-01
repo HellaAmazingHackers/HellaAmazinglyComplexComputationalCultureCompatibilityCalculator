@@ -1,33 +1,43 @@
 var passport = require('passport');
-var Strategy = require('passport-twitter').Strategy;
+var TwitterStrategy = require('passport-twitter');
 var Twitter = require('twitter');
 
 var API = {
- twitterKey: process.env.TW_KEY,
- twitterSecret: process.env.TW_SECRET,
- access_token_key: process.env.TW_TOKEN,
- access_token_secret: process.env.TW_TOKEN_SECRET
+  twitterKey: process.env.TW_KEY,
+  twitterSecret: process.env.TW_SECRET,
+  access_token_key: process.env.TW_TOKEN,
+  access_token_secret: process.env.TW_TOKEN_SECRET
 };
 
 var client = new Twitter({
- consumer_key: API.twitterKey,
- consumer_secret: API.twitterSecret,
- access_token_key: API.access_token_key,
- access_token_secret: API.access_token_secret
+  consumer_key: API.twitterKey,
+  consumer_secret: API.twitterSecret,
+  access_token_key: API.access_token_key,
+  access_token_secret: API.access_token_secret
 });
 
-passport.use(new Strategy({
+if (process.env.NODE_ENV === 'production') {
+  console.log('in production');
+  passport.use('twitter-authz', new TwitterStrategy({
     consumerKey: API.twitterKey,
     consumerSecret: API.twitterSecret,
-    callbackURL: '/twitter/return'
+    callbackURL: 'https://hella-amazing-ccccc.herokuapp.com/twitter/return',
   },
   function(token, tokenSecret, profile, cb) {
     client = populateClient(token, tokenSecret, profile.username);
     analyzeProfile(console.log);
+} else {
+  passport.use('twitter-authz', new TwitterStrategy({
+    consumerKey: API.twitterKey,
+    consumerSecret: API.twitterSecret,
+    callbackURL: 'http://localhost:3000/twitter/return',
+  },
+  function(token, tokenSecret, profile, cb) {
+    client = populateClient(token, tokenSecret, profile.username);
+    analyzeProfile(console.log);
+}
 
-    return cb(null, profile);
-  })
-);
+
 
 passport.serializeUser(function(user, cb) {
   cb(null, user);
@@ -62,11 +72,16 @@ var analyzeProfile = (username) => {
       count: 200,
       exclude_replies: true
     };
-
+    console.log('erroring out in analyzeProfile before client.get');
     var tweetStrings = [];
     client.get('/statuses/user_timeline.json', 
       params, function(err, tweets, res) {
-        if (err) reject(err);
+        if (err) {
+          console.log('erroring out in analyzeProfile after client.get');
+          console.log('error is: ', err);
+          console.log('T1KEY: ', process.env.S1_KEY);
+          reject(err);
+        }
         else {
           tweets.forEach(function(tweet) {
             tweetStrings.push(tweet.text);
@@ -75,8 +90,8 @@ var analyzeProfile = (username) => {
           resolve(JSON.stringify(tweetStrings));
         }
     });
-  })
-}
+  });
+};
 
 var testAnalysis = (req, res) => {
   var length = '/twitterProfile/'.length;
@@ -87,16 +102,13 @@ var testAnalysis = (req, res) => {
 }
 
 var toAnalysis = function(req, res, next) {
+  let profile = req.session.profile
   req.body = {
-    name: '@' + req.user.username,
+    name: '@' + profile.username,
     context: 'twitter',
     private: true
   };
   next();
-};
-
-var renderTest = function(req, res) {
-  res.render('testProfile', { user: req.user });
 };
 
 var follow = function(req, res, next) {
@@ -135,16 +147,20 @@ var attachUsername = function(req, res, next) {
 }
 
 var checkIfSelfAnalysis = function(req, res, next) {
-  req.params.username ? next() : res.redirect(301, '/selfTwitterAnalysis');
+  if (req.params.username) {
+    next();
+  } else {
+    req.session.profile = req.account;
+    res.redirect('/selfTwitterAnalysis');
+  }
 }
 
 module.exports = {
-  toAuth: passport.authorize('twitter'),
-  fromAuth: passport.authorize('twitter', { failureRedirect: '/'}),
+  toAuth: passport.authorize('twitter-authz'),
+  fromAuth: passport.authorize('twitter-authz', { failureRedirect: '/'}),
   analyzeProfile: analyzeProfile,
   testAnalysis: testAnalysis,
   toAnalysis: toAnalysis,
-  renderTest: renderTest,
   follow: follow,
   tweet: tweet,
   attachUsername: attachUsername,

@@ -1,6 +1,7 @@
 var Analysis = require('../../database/models/analyses');
 var AnalysesTrait = require('../../database/models/analyses_traits');
-var tradeoff = require('./tradeoff');
+var Problem = require('../../database/models/problem');
+// var tradeoff = require('./tradeoff');
 var fs = require('fs');
 
 // Example options array
@@ -59,11 +60,6 @@ var createOptions = function(callback) {
               } else if (analysisTraits) {
                 // Add each analysisTrait to the values object
                 for (var j = 0; j < analysisTraits.length; j++) {
-                  // TEMPORARILY FILTER to minimize results:
-                  // Will only get big5 traits
-                  // if (analysisTraits[j].trait_id.charAt(0) === 'b') {
-                  //   values[analysisTraits[j].trait_id] = analysisTraits[j].percentile.valueOf() * 100;
-                  // }
                   values[analysisTraits[j].trait_id] = analysisTraits[j].percentile.valueOf() * 100;
                 }
               }
@@ -185,36 +181,37 @@ var createProblemObject = function() {
     .then(function(options) {
       problemObj.options = options;
 
-      // Send problem object to the Watson Tradeoff API
-      // Note: Since we're using the widget, we don't need to make an API call from our server
-      // tradeoff.getDilemma(problemObj);
-
       resolve(problemObj);
     });
 
   });
 };
 
-// TODO (Eddie): should differentiate based on twitter vs. resume analyses
-// For now: only twitter
+// For now: only twitter problem JSON
 var writeProblemJSON = function() {
-  console.log('in writeProblemJSON');
   
   return new Promise((resolve, reject) => {
     createProblemObject()
     .then(function(problemObj) {
-      console.log('before writefile');
-      var filename = './client/dist/twitterProblem.json';
-      fs.writeFile(filename, JSON.stringify(problemObj), (err) => {
+      // If a problem already exists in the database, update it
+      Problem.findOneAndUpdate({}, {problem: problemObj}, { upsert: true }, function(err, doc) {
         if (err) {
-          reject();
-          throw err;
+          return console.log('error finding one and updating');
         }
-        console.log('The file ' + filename + ' has been saved!');
-        resolve();
+        console.log('problem succesfully saved to database');
       });
     });
   });
 };
 
+var getProblemJSON = function(req, res) {
+  Problem.findOne({}, function(err, problem) {
+    if (err) {
+      console.log(err);
+    }
+    res.json(problem.problem);
+  });
+};
+
 module.exports.writeProblemJSON = writeProblemJSON;
+module.exports.getProblemJSON = getProblemJSON;
