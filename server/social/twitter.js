@@ -1,5 +1,5 @@
 var passport = require('passport');
-var Strategy = require('passport-twitter').Strategy;
+var TwitterStrategy = require('passport-twitter');
 var Twitter = require('twitter');
 
 var API = {
@@ -16,10 +16,10 @@ var client = new Twitter({
  access_token_secret: API.access_token_secret
 });
 
-passport.use(new Strategy({
+passport.use('twitter-authz', new TwitterStrategy({
     consumerKey: API.twitterKey,
     consumerSecret: API.twitterSecret,
-    callbackURL: '/twitter/return'
+    callbackURL: '/twitter/return',
   },
   function(token, tokenSecret, profile, cb) {
     client = populateClient(token, tokenSecret, profile.username);
@@ -87,16 +87,13 @@ var testAnalysis = (req, res) => {
 }
 
 var toAnalysis = function(req, res, next) {
+  let profile = req.session.profile
   req.body = {
-    name: '@' + req.user.username,
+    name: '@' + profile.username,
     context: 'twitter',
     private: true
   };
   next();
-};
-
-var renderTest = function(req, res) {
-  res.render('testProfile', { user: req.user });
 };
 
 var follow = function(req, res, next) {
@@ -135,16 +132,20 @@ var attachUsername = function(req, res, next) {
 }
 
 var checkIfSelfAnalysis = function(req, res, next) {
-  req.params.username ? next() : res.redirect(301, '/selfTwitterAnalysis');
+  if (req.params.username) {
+    next();
+  } else {
+    req.session.profile = req.account;
+    res.redirect('/selfTwitterAnalysis');
+  }
 }
 
 module.exports = {
-  toAuth: passport.authorize('twitter'),
-  fromAuth: passport.authorize('twitter', { failureRedirect: '/'}),
+  toAuth: passport.authorize('twitter-authz'),
+  fromAuth: passport.authorize('twitter-authz', { failureRedirect: '/'}),
   analyzeProfile: analyzeProfile,
   testAnalysis: testAnalysis,
   toAnalysis: toAnalysis,
-  renderTest: renderTest,
   follow: follow,
   tweet: tweet,
   attachUsername: attachUsername,
