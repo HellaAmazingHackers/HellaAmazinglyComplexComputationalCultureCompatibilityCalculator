@@ -4,7 +4,6 @@ var routes = {
     public: '/publicanalyses',
     customform: '/analysis',
     twitter: '/twitter',
-    twitterTradeoff: '/twitterTradeoff',
     twitterProfile: '/analysis',
     analyze: '/analyze/',
     user: '/useranalyses',

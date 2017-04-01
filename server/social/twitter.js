@@ -97,3 +97,4 @@ module.exports.toAnalysis = function(req, res, next) {
 module.exports.renderTest = function(req, res) {
   res.render('testProfile', { user: req.user });
 };
+

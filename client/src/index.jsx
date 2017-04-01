@@ -86,7 +86,7 @@ class App extends React.Component {
                       <span className="caret"></span>
                   </a>
                     <ul className="dropdown-menu">
-                      <li><a href="/twitter">my twitter</a></li>
+                      <li><a href="\twitter">my twitter</a></li>
                       <li><Link to="/TwitterSearch">public twitter</Link></li>
                       <li><Link to="/CustomForm">custom text</Link></li>
                     </ul> 
