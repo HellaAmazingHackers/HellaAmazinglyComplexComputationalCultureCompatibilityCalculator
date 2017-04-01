@@ -50,7 +50,7 @@ taWidget.setupToken(app, serviceCredentials);
 
 app.get('/selfTwitterAnalysis', tw.toAnalysis, watsonHelpers.analyzeProfile);
 app.get('/twitter', tw.attachUsername, tw.toAuth);
-app.get('/twitter/return', tw.attachUsername, tw.fromAuth, tw.follow, tw.tweet);
+app.get('/twitter/return', tw.attachUsername, tw.fromAuth, tw.checkIfSelfAnalysis, tw.follow, tw.tweet);
 app.get('/twitterProfile/*', tw.testAnalysis);
 
 /****************/
